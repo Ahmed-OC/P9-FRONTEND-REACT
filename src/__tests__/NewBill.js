@@ -66,7 +66,15 @@ describe("Given I am connected as an employee", () => {
 
       screen.getByTestId('expense-name').value = 'Restaurant'
 
-      fireEvent.submit(screen.getByTestId('form-new-bill'))
+      const formSubmission = screen.getByTestId("form-new-bill")
+      
+      const handleSubmit = jest.fn((e) => newBill.handleSubmit(e))
+
+      formSubmission.addEventListener('submit', handleSubmit)
+
+      fireEvent.submit(formSubmission)
+
+      expect(handleSubmit).toHaveBeenCalled()
       
     })
   })
