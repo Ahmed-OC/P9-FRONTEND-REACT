@@ -13,6 +13,8 @@ import userEvent from "@testing-library/user-event";
 import Bills from "../containers/Bills.js";
 import store from "../__mocks__/store";
 
+jest.mock("../app/Store", () => store)
+
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
     beforeEach(() => {
@@ -96,6 +98,34 @@ describe("Given I am connected as an employee", () => {
       })
       let billsOnBillsPage = await billsPage.getBills()
       expect(billsOnBillsPage).toEqual(bills)
+    })
+    test("fetches bills from an API and fails with 404 message error", async () => {
+
+      store.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 404"))
+          }
+        }})
+      window.onNavigate(ROUTES_PATH.Bills)
+      await new Promise(process.nextTick);
+      const message = screen.getByText(/Erreur 404/)
+      expect(message).toBeTruthy()
+    })
+
+    test("fetches messages from an API and fails with 500 message error", async () => {
+
+      store.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 500"))
+          }
+        }})
+
+      window.onNavigate(ROUTES_PATH.Bills)
+      await new Promise(process.nextTick);
+      const message = screen.getByText(/Erreur 500/)
+      expect(message).toBeTruthy()
     })
   })
 })
